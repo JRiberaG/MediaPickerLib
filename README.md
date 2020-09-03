@@ -13,10 +13,9 @@ alt="awesome_kotlin">
 <img src="https://img.shields.io/badge/License-MIT-yellow.svg"
 alt="licence">
 </a>
-<a href="https://jitpack.io/#WrathChaos/MediaPickerLib">
-<img src="https://jitpack.io/v/WrathChaos/MediaPickerLib.svg"
-alt="Jitpack">
-</a>
+<a href="https://jitpack.io/#JRiberaG/MediaPickerLib">
+<img src="https://jitpack.io/v/JRiberaG/MediaPickerLib.svg"
+alt="Version">
 <a href="https://android-arsenal.com/api?level=19">
 <img src="https://img.shields.io/badge/API-19%2B-brightgreen.svg?style=flat)"
 alt="API">
