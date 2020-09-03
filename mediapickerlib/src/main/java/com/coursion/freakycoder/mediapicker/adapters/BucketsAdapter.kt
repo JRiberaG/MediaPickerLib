@@ -18,13 +18,9 @@ import com.coursion.mediapickerlib.R
 class BucketsAdapter(private val bucketNames: List<String>,
                      private val bitmapList: List<String>,
                      private val context: Context) :
-        androidx.recyclerview.widget.RecyclerView.Adapter<BucketsAdapter.MyViewHolder>() {
+        RecyclerView.Adapter<BucketsAdapter.MyViewHolder>() {
 
-    private val inflater: LayoutInflater
-
-    init {
-        inflater = LayoutInflater.from(context)
-    }
+    private val inflater: LayoutInflater = LayoutInflater.from(context)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val itemView = inflater.inflate(R.layout.album_item,
@@ -56,16 +52,11 @@ class BucketsAdapter(private val bucketNames: List<String>,
         return bucketNames.size
     }
 
-    inner class MyViewHolder(view: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(view) {
-        var title: TextView
-        var thumbnail: ImageView
-        var sl: SquareLayout
+    inner class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        var title: TextView = view.findViewById(R.id.title)
+        var thumbnail: ImageView = view.findViewById(R.id.image)
+        var sl: SquareLayout = view.findViewById(R.id.sl)
 
-        init {
-            title = view.findViewById(R.id.title)
-            thumbnail = view.findViewById(R.id.image)
-            sl = view.findViewById(R.id.sl)
-        }
     }
 }
 

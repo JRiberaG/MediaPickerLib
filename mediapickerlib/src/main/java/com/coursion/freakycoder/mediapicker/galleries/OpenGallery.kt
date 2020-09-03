@@ -15,12 +15,15 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import android.widget.TextView
 import com.coursion.freakycoder.mediapicker.adapters.MediaAdapter
 import com.coursion.freakycoder.mediapicker.fragments.ImageFragment
 import com.coursion.freakycoder.mediapicker.fragments.VideoFragment
 import com.coursion.freakycoder.mediapicker.helper.Util
 import com.coursion.mediapickerlib.R
+import kotlinx.android.synthetic.main.activity_gallery.*
 import kotlinx.android.synthetic.main.activity_open_gallery.*
+import kotlinx.android.synthetic.main.activity_open_gallery.btnBack
 import kotlinx.android.synthetic.main.content_open_gallery.*
 import java.util.ArrayList
 
@@ -29,31 +32,44 @@ class OpenGallery : AppCompatActivity() {
     companion object {
         var selected: MutableList<Boolean> = ArrayList()
         var imagesSelected = ArrayList<String>()
+        private var listAux = mutableListOf<String>()
     }
 
     var parent: String? = null
     private var mAdapter: MediaAdapter? = null
     private val mediaList = ArrayList<String>()
-    lateinit var fab: FloatingActionButton
+
+    private lateinit var fab: FloatingActionButton
+    private lateinit var tvTitle: TextView
+    private lateinit var tvCount: TextView
+    private lateinit var recyclerView: RecyclerView
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(R.layout.activity_open_gallery)
+
         fab = findViewById(R.id.fab)
-        setSupportActionBar(toolbar)
-        val fab = findViewById<View>(R.id.fab) as FloatingActionButton
-        val util = Util()
-        util.setButtonTint(fab, ContextCompat.getColorStateList(applicationContext, R.color.fabColor)!!)
-        fab.setOnClickListener { finish() }
-        toolbar.setNavigationIcon(R.drawable.arrow_back)
-        title = Gallery.title
-        if (imagesSelected.size > 0) {
-            title = imagesSelected.size.toString()
+        tvTitle = findViewById(R.id.title)
+        tvCount = findViewById(R.id.count)
+        recyclerView = findViewById(R.id.recyclerView)
+
+        Util.setButtonTint(fab, ContextCompat.getColorStateList(applicationContext, R.color.fabColor)!!)
+        fab.setOnClickListener {
+            // Saves changes
+            imagesSelected = listAux as ArrayList<String>
+            finish()
         }
-        toolbar.setNavigationOnClickListener { onBackPressed() }
+
+        btnBack.setOnClickListener { onBackPressed() }
+
         parent = intent.extras!!.getString("FROM")
+        tvTitle.text = intent.extras!!.getString("BUCKETNAME")
+        if (imagesSelected.size > 0) {
+            tvCount.text = imagesSelected.size.toString()
+        }
+
         mediaList.clear()
         selected.clear()
         if (parent == "Images") {
@@ -63,6 +79,9 @@ class OpenGallery : AppCompatActivity() {
             mediaList.addAll(VideoFragment.videosList)
             selected.addAll(VideoFragment.selected)
         }
+
+        listAux = imagesSelected.toMutableList()
+
         populateRecyclerView()
     }
 
@@ -71,35 +90,38 @@ class OpenGallery : AppCompatActivity() {
             selected[i] = imagesSelected.contains(mediaList[i])
         }
         mAdapter = MediaAdapter(mediaList, selected, applicationContext)
-        val mLayoutManager = androidx.recyclerview.widget.GridLayoutManager(applicationContext, 3)
-        recyclerView!!.layoutManager = mLayoutManager
-        recyclerView!!.itemAnimator?.changeDuration = 0
-        recyclerView!!.adapter = mAdapter
-        recyclerView!!.addOnItemTouchListener(RecyclerTouchListener(this, recyclerView, object : ClickListener {
+        val mLayoutManager = GridLayoutManager(applicationContext, 5)
+        recyclerView.layoutManager = mLayoutManager
+        recyclerView.itemAnimator?.changeDuration = 0
+        recyclerView.adapter = mAdapter
+        recyclerView.addOnItemTouchListener(RecyclerTouchListener(this, recyclerView, object : ClickListener {
             override fun onClick(view: View, position: Int) {
-                if (!selected[position] && imagesSelected.size < Gallery.maxSelection) {
-                    imagesSelected.add(mediaList[position])
+//                if (!selected[position] && imagesSelected.size < Gallery.maxSelection) {
+                if (!selected[position] && listAux.size < Gallery.maxSelection) {
+//                    imagesSelected.add(mediaList[position])
+                    listAux.add(mediaList[position])
+
                     selected[position] = !selected[position]
                     mAdapter!!.notifyItemChanged(position)
                 } else if (selected[position]) {
-                    if (imagesSelected.indexOf(mediaList[position]) != -1) {
-                        imagesSelected.removeAt(imagesSelected.indexOf(mediaList[position]))
+                    if (listAux.indexOf(mediaList[position]) != -1) {
+//                        imagesSelected.removeAt(imagesSelected.indexOf(mediaList[position]))
+                        listAux.removeAt(listAux.indexOf(mediaList[position]))
+
                         selected[position] = !selected[position]
                         mAdapter!!.notifyItemChanged(position)
                     }
                 }
-                Gallery.selectionTitle = imagesSelected.size
-                if (imagesSelected.size != 0) {
-                    title = imagesSelected.size.toString()
+
+                tvCount.text = if (listAux.size != 0) {
+                    listAux.size.toString()
                 } else {
-                    title = Gallery.title
+                    ""
                 }
             }
 
             override fun onLongClick(view: View?, position: Int) {
-
             }
-
         }))
     }
 
@@ -109,7 +131,7 @@ class OpenGallery : AppCompatActivity() {
         fun onLongClick(view: View?, position: Int)
     }
 
-    class RecyclerTouchListener(context: Context, recyclerView: androidx.recyclerview.widget.RecyclerView, private val clickListener: OpenGallery.ClickListener?) : androidx.recyclerview.widget.RecyclerView.OnItemTouchListener {
+    class RecyclerTouchListener(context: Context, recyclerView: RecyclerView, private val clickListener: ClickListener?) : RecyclerView.OnItemTouchListener {
         private val gestureDetector: GestureDetector
 
         init {
@@ -121,21 +143,21 @@ class OpenGallery : AppCompatActivity() {
                 override fun onLongPress(e: MotionEvent) {
                     val child = recyclerView.findChildViewUnder(e.x, e.y)
                     if (child != null && clickListener != null) {
-                        clickListener.onLongClick(child, recyclerView.getChildPosition(child))
+                        clickListener.onLongClick(child, recyclerView.getChildLayoutPosition(child))
                     }
                 }
             })
         }
 
-        override fun onInterceptTouchEvent(rv: androidx.recyclerview.widget.RecyclerView, e: MotionEvent): Boolean {
+        override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
             val child = rv.findChildViewUnder(e.x, e.y)
             if (child != null && clickListener != null && gestureDetector.onTouchEvent(e)) {
-                clickListener.onClick(child, rv.getChildPosition(child))
+                clickListener.onClick(child, rv.getChildLayoutPosition(child))
             }
             return false
         }
 
-        override fun onTouchEvent(rv: androidx.recyclerview.widget.RecyclerView, e: MotionEvent) {}
+        override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {}
 
         override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
     }

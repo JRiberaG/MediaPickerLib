@@ -16,13 +16,10 @@ import com.coursion.mediapickerlib.R
 class MediaAdapter(private val bitmapList: List<String>,
                    private val selected: List<Boolean>,
                    private val context: Context):
-        androidx.recyclerview.widget.RecyclerView.Adapter<MediaAdapter.MyViewHolder>() {
+        RecyclerView.Adapter<MediaAdapter.MyViewHolder>() {
 
-    private val inflater: LayoutInflater
+    private val inflater: LayoutInflater = LayoutInflater.from(context)
 
-    init {
-        inflater = LayoutInflater.from(context)
-    }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val itemView = inflater.inflate(R.layout.media_item,
                 parent, false)
@@ -51,14 +48,10 @@ class MediaAdapter(private val bitmapList: List<String>,
         return bitmapList.size
     }
 
-    inner class MyViewHolder(view: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(view) {
-        var thumbnail: ImageView
-        var check: ImageView
+    inner class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        var thumbnail: ImageView = view.findViewById(R.id.image)
+        var check: ImageView = view.findViewById(R.id.image2)
 
-        init {
-            thumbnail = view.findViewById<View>(R.id.image) as ImageView
-            check = view.findViewById<View>(R.id.image2) as ImageView
-        }
     }
 
 }

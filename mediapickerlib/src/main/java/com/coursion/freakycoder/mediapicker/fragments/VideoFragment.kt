@@ -28,7 +28,7 @@ class VideoFragment : androidx.fragment.app.Fragment() {
         var videosList: MutableList<String> = ArrayList()
         var selected: MutableList<Boolean> = ArrayList()
     }
-    private lateinit var recyclerView: androidx.recyclerview.widget.RecyclerView
+    private lateinit var recyclerView: RecyclerView
     private var mAdapter: BucketsAdapter? = null
     private var bucketNames: MutableList<String> = ArrayList()
     private val bitmapList = ArrayList<String>()
@@ -55,9 +55,9 @@ class VideoFragment : androidx.fragment.app.Fragment() {
 
     private fun populateRecyclerView() {
         mAdapter = BucketsAdapter(bucketNames, bitmapList, context!!)
-        val mLayoutManager = androidx.recyclerview.widget.GridLayoutManager(context, 3)
+        val mLayoutManager = GridLayoutManager(context, 3)
         recyclerView.layoutManager = mLayoutManager
-        recyclerView.itemAnimator = androidx.recyclerview.widget.DefaultItemAnimator()
+        recyclerView.itemAnimator = DefaultItemAnimator()
         recyclerView.adapter = mAdapter
         recyclerView.addOnItemTouchListener(RecyclerTouchListener(context!!, recyclerView,
                 object : ClickListener {
@@ -65,11 +65,11 @@ class VideoFragment : androidx.fragment.app.Fragment() {
                 getVideos(bucketNames[position])
                 val intent = Intent(context, OpenGallery::class.java)
                 intent.putExtra("FROM", "Videos")
+                intent.putExtra("BUCKETNAME", bucketNames[position])
                 startActivity(intent)
             }
 
             override fun onLongClick(view: View?, position: Int) {
-
             }
         }))
         mAdapter!!.notifyDataSetChanged()
@@ -146,9 +146,9 @@ class VideoFragment : androidx.fragment.app.Fragment() {
         fun onLongClick(view: View?, position: Int)
     }
 
-    class RecyclerTouchListener(context: Context, recyclerView: androidx.recyclerview.widget.RecyclerView,
-                                private val clickListener: VideoFragment.ClickListener?) :
-            androidx.recyclerview.widget.RecyclerView.OnItemTouchListener {
+    class RecyclerTouchListener(context: Context, recyclerView: RecyclerView,
+                                private val clickListener: ClickListener?) :
+            RecyclerView.OnItemTouchListener {
         private val gestureDetector: GestureDetector
 
         init {
@@ -167,7 +167,7 @@ class VideoFragment : androidx.fragment.app.Fragment() {
             })
         }
 
-        override fun onInterceptTouchEvent(rv: androidx.recyclerview.widget.RecyclerView, e: MotionEvent): Boolean {
+        override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
             val child = rv.findChildViewUnder(e.x, e.y)
             if (child != null && clickListener != null && gestureDetector.onTouchEvent(e)) {
                 clickListener.onClick(child, rv.getChildAdapterPosition(child))
@@ -175,7 +175,7 @@ class VideoFragment : androidx.fragment.app.Fragment() {
             return false
         }
 
-        override fun onTouchEvent(rv: androidx.recyclerview.widget.RecyclerView, e: MotionEvent) {}
+        override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {}
 
         override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
     }

@@ -9,11 +9,13 @@ import androidx.core.view.ViewCompat
  * Created by WrathChaos on 5.03.2018.
  */
 class Util{
-    fun setButtonTint(button: FloatingActionButton, tint: ColorStateList) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            button.backgroundTintList = tint
-        } else {
-            ViewCompat.setBackgroundTintList(button, tint)
+    companion object {
+        fun setButtonTint(button: FloatingActionButton, tint: ColorStateList) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                button.backgroundTintList = tint
+            } else {
+                ViewCompat.setBackgroundTintList(button, tint)
+            }
         }
     }
 }

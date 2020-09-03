@@ -27,7 +27,7 @@ class ImageFragment : androidx.fragment.app.Fragment() {
         var selected: MutableList<Boolean> = ArrayList()
     }
 
-    private lateinit var recyclerView: androidx.recyclerview.widget.RecyclerView
+    private lateinit var recyclerView: RecyclerView
     private var mAdapter: BucketsAdapter? = null
     private val projection = arrayOf(MediaStore.Images.Media.BUCKET_DISPLAY_NAME, MediaStore.Images.Media.DATA)
     private val projection2 = arrayOf(MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.DATA)
@@ -53,21 +53,21 @@ class ImageFragment : androidx.fragment.app.Fragment() {
     }
 
     private fun populateRecyclerView() {
-        val mLayoutManager = androidx.recyclerview.widget.GridLayoutManager(this.context!!, 3)
+        val mLayoutManager = GridLayoutManager(this.context!!, 3)
         recyclerView.layoutManager = mLayoutManager
         mAdapter = BucketsAdapter(bucketNames, bitmapList, this.context!!)
-        recyclerView.itemAnimator = androidx.recyclerview.widget.DefaultItemAnimator()
+        recyclerView.itemAnimator = DefaultItemAnimator()
         recyclerView.adapter = mAdapter
         recyclerView.addOnItemTouchListener(RecyclerTouchListener(this.context!!, recyclerView, object : ClickListener {
             override fun onClick(view: View, position: Int) {
                 getPictures(bucketNames[position])
                 val intent = Intent(context, OpenGallery::class.java)
                 intent.putExtra("FROM", "Images")
+                intent.putExtra("BUCKETNAME", bucketNames[position])
                 startActivity(intent)
             }
 
             override fun onLongClick(view: View?, position: Int) {
-
             }
         }))
         mAdapter!!.notifyDataSetChanged()
@@ -142,9 +142,9 @@ class ImageFragment : androidx.fragment.app.Fragment() {
         fun onLongClick(view: View?, position: Int)
     }
 
-    class RecyclerTouchListener(context: Context, recyclerView: androidx.recyclerview.widget.RecyclerView,
-                                private val clickListener: ImageFragment.ClickListener?) :
-            androidx.recyclerview.widget.RecyclerView.OnItemTouchListener {
+    class RecyclerTouchListener(context: Context, recyclerView: RecyclerView,
+                                private val clickListener: ClickListener?) :
+            RecyclerView.OnItemTouchListener {
         private val gestureDetector: GestureDetector
 
         init {
@@ -164,7 +164,7 @@ class ImageFragment : androidx.fragment.app.Fragment() {
                     })
         }
 
-        override fun onInterceptTouchEvent(rv: androidx.recyclerview.widget.RecyclerView, e: MotionEvent): Boolean {
+        override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
             val child = rv.findChildViewUnder(e.x, e.y)
             if (child != null && clickListener != null && gestureDetector.onTouchEvent(e)) {
                 clickListener.onClick(child, rv.getChildAdapterPosition(child))
@@ -172,7 +172,7 @@ class ImageFragment : androidx.fragment.app.Fragment() {
             return false
         }
 
-        override fun onTouchEvent(rv: androidx.recyclerview.widget.RecyclerView, e: MotionEvent) {}
+        override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {}
 
         override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
 

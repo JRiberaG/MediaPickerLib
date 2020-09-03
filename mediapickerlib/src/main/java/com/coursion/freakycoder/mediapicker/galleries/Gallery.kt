@@ -12,6 +12,8 @@ import androidx.viewpager.widget.ViewPager
 import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import android.view.WindowManager
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import com.coursion.freakycoder.mediapicker.fragments.ImageFragment
 import com.coursion.freakycoder.mediapicker.fragments.VideoFragment
 import com.coursion.freakycoder.mediapicker.helper.Util
@@ -22,38 +24,41 @@ import java.util.ArrayList
 class Gallery : AppCompatActivity() {
     
     companion object {
-        var selectionTitle: Int = 0
-        var title: String? = null
         var maxSelection: Int = 0
         var mode: Int = 0
         var tabBarHidden = false
     }
 
-    open lateinit var fab: FloatingActionButton
+    private lateinit var fab: FloatingActionButton
+    private lateinit var tvTitle: TextView
+    private lateinit var tvCount: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(R.layout.activity_gallery)
-        fab = findViewById(R.id.fab)
-        // Set the toolbar
-        setSupportActionBar(toolbar)
-        toolbar.setNavigationIcon(R.drawable.arrow_back)
-        toolbar.setNavigationOnClickListener { onBackPressed() }
 
-        val fab = findViewById<View>(R.id.fab) as FloatingActionButton
-        val util = Util()
-        util.setButtonTint(fab, ContextCompat.getColorStateList(applicationContext, R.color.fabColor)!!)
+        fab = findViewById(R.id.fab)
+        tvTitle = findViewById(R.id.title)
+        tvCount = findViewById(R.id.count)
+
+        // Set the toolbar
+//        setSupportActionBar(toolbar)
+//        toolbar.setNavigationIcon(R.drawable.arrow_back)
+//        toolbar.setNavigationOnClickListener { onBackPressed() }
+        btnBack.setOnClickListener { onBackPressed() }
         fab.setOnClickListener { returnResult() }
 
-        title = intent.extras!!.getString("title")
+        Util.setButtonTint(fab, ContextCompat.getColorStateList(applicationContext, R.color.fabColor)!!)
+
+        tvTitle.text = intent.extras!!.getString("title")
         maxSelection = intent.extras!!.getInt("maxSelection")
         if (maxSelection == 0) maxSelection = Integer.MAX_VALUE
         mode = intent.extras!!.getInt("mode")
         tabBarHidden = intent.extras!!.getBoolean("tabBarHidden")
-        title = title
-        selectionTitle = 0
+
+        setTextViewCount()
         // Set the ViewPager and TabLayout
         setupViewPager(viewPager)
         tabLayout!!.setupWithViewPager(viewPager)
@@ -63,20 +68,26 @@ class Gallery : AppCompatActivity() {
 
     }
 
-    override fun onPostResume() {
-        super.onPostResume()
-        if (selectionTitle > 0) {
-            title = selectionTitle.toString()
+    override fun onResume() {
+        super.onResume()
+        setTextViewCount()
+    }
+
+    private fun setTextViewCount() {
+        tvCount.text = if (OpenGallery.imagesSelected.size > 0) {
+            OpenGallery.imagesSelected.size.toString()
+        } else {
+            ""
         }
     }
 
     //This method set up the tab view for images and videos
-    private fun setupViewPager(viewPager: androidx.viewpager.widget.ViewPager?) {
+    private fun setupViewPager(viewPager: ViewPager?) {
         val adapter = ViewPagerAdapter(supportFragmentManager)
-        if (mode == 1 || mode == 2) {
+        if (mode == 0 || mode == 1) {
             adapter.addFragment(ImageFragment(), "Images")
         }
-        if (mode == 1 || mode == 3)
+        if (mode == 0 || mode == 2)
             adapter.addFragment(VideoFragment(), "Videos")
         viewPager!!.adapter = adapter
 
@@ -87,11 +98,11 @@ class Gallery : AppCompatActivity() {
         }
     }
 
-    internal inner class ViewPagerAdapter(manager: androidx.fragment.app.FragmentManager) : androidx.fragment.app.FragmentPagerAdapter(manager) {
-        private val mFragmentList = ArrayList<androidx.fragment.app.Fragment>()
+    internal inner class ViewPagerAdapter(manager: FragmentManager) : androidx.fragment.app.FragmentPagerAdapter(manager) {
+        private val mFragmentList = ArrayList<Fragment>()
         private val mFragmentTitleList = ArrayList<String>()
 
-        override fun getItem(position: Int): androidx.fragment.app.Fragment {
+        override fun getItem(position: Int): Fragment {
             return mFragmentList[position]
         }
 
@@ -99,7 +110,7 @@ class Gallery : AppCompatActivity() {
             return mFragmentList.size
         }
 
-        fun addFragment(fragment: androidx.fragment.app.Fragment, title: String) {
+        fun addFragment(fragment: Fragment, title: String) {
             mFragmentList.add(fragment)
             mFragmentTitleList.add(title)
         }

@@ -20,6 +20,6 @@
         android:layout_marginTop="8dp"
         android:fontFamily="sans-serif-condensed"
         android:layout_centerHorizontal="true"
-        android:textSize="14sp" />
+        android:textSize="18sp" />
 
 </com.coursion.freakycoder.mediapicker.helper.SquareLayout>
