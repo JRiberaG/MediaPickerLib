@@ -147,7 +147,7 @@ class MainActivity : AppCompatActivity() {
                 val intent = Intent(this, Gallery::class.java)
                 // Set the title
                 intent.putExtra("title", "Select media")
-                // Mode 1 for both images and videos selection, 2 for images only and 3 for videos!
+                // Mode 0 for both images and videos selection, 1 for images only and 2 for videos!
                 intent.putExtra("mode", 1)
                 intent.putExtra("maxSelection", 3) // Optional
                 intent.putExtra("tabBarHidden", true) //Optional - default value is false
