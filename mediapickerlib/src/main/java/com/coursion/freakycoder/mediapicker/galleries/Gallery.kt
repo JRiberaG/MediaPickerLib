@@ -43,10 +43,6 @@ class Gallery : AppCompatActivity() {
         tvTitle = findViewById(R.id.title)
         tvCount = findViewById(R.id.count)
 
-        // Set the toolbar
-//        setSupportActionBar(toolbar)
-//        toolbar.setNavigationIcon(R.drawable.arrow_back)
-//        toolbar.setNavigationOnClickListener { onBackPressed() }
         btnBack.setOnClickListener { onBackPressed() }
         fab.setOnClickListener { returnResult() }
 

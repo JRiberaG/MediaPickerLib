@@ -96,16 +96,13 @@ class OpenGallery : AppCompatActivity() {
         recyclerView.adapter = mAdapter
         recyclerView.addOnItemTouchListener(RecyclerTouchListener(this, recyclerView, object : ClickListener {
             override fun onClick(view: View, position: Int) {
-//                if (!selected[position] && imagesSelected.size < Gallery.maxSelection) {
                 if (!selected[position] && listAux.size < Gallery.maxSelection) {
-//                    imagesSelected.add(mediaList[position])
                     listAux.add(mediaList[position])
 
                     selected[position] = !selected[position]
                     mAdapter!!.notifyItemChanged(position)
                 } else if (selected[position]) {
                     if (listAux.indexOf(mediaList[position]) != -1) {
-//                        imagesSelected.removeAt(imagesSelected.indexOf(mediaList[position]))
                         listAux.removeAt(listAux.indexOf(mediaList[position]))
 
                         selected[position] = !selected[position]

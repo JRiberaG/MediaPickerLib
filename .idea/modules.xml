@@ -3,6 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/MediaPickerLib.iml" filepath="$PROJECT_DIR$/MediaPickerLib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/MediaPickerLib-app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/MediaPickerLib-app.iml" group="MediaPickerLib/app" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mediapickerlib/MediaPickerLib-mediapickerlib.iml" filepath="$PROJECT_DIR$/.idea/modules/mediapickerlib/MediaPickerLib-mediapickerlib.iml" group="MediaPickerLib/mediapickerlib" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Other-MediaPickerLib.iml" filepath="$PROJECT_DIR$/.idea/modules/Other-MediaPickerLib.iml" group="MediaPickerLib" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/mediapickerlib/mediapickerlib.iml" filepath="$PROJECT_DIR$/mediapickerlib/mediapickerlib.iml" />
     </modules>
