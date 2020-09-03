@@ -28,6 +28,13 @@ alt="Maintenance">
 </a>
 </p>
 
+### Improvements - 03/09/20
+- Added the functionality to save and discard changes:
+  * Save changes: tap the `Floating Action Button`
+  * Discard changes: tab back button on `Appbar` or press back
+- Added the name of the folder on the `OpenGallery` and moved the media file counter to the end
+- Layouts replaced for `ConstraintLayout`
+- Added a `Dialog` to choose the mode in the Demo app
 
 ## Setup
 Add this on your module:app build.gradle
