@@ -48,7 +48,7 @@ allprojects {
 ## Gradle
 
 ```kotlin
-implementation 'com.github.WrathChaos:MediaPickerLib:0.2.0'
+implementation 'com.github.JRiberaG:MediaPickerLib:0.2.1'
 ```
 
 ## Usage
@@ -65,8 +65,8 @@ private val OPEN_MEDIA_PICKER = 1  // Request code
 val intent = Intent(this, Gallery::class.java)
 // Set the title for toolbar
 intent.putExtra("title", "Select media")
-// Mode 1 for both images and videos selection, 2 for images only and 3 for videos!
-intent.putExtra("mode", 1)
+// Mode 0 for both images and videos selection, 1 for images only and 2 for videos!
+intent.putExtra("mode", 0)
 intent.putExtra("maxSelection", 3) // Optional
 startActivityForResult(intent, OPEN_MEDIA_PICKER)
 ```
@@ -105,20 +105,19 @@ override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) 
 If you need more spesific example, please look at the [Example](https://github.com/WrathChaos/MediaPickerLib/tree/master/app)
 
 ```kotlin
-package com.example.myapplication
+package com.coursion.mediapickerlib
 
 import android.Manifest
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
@@ -128,35 +127,60 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import java.io.File
 import java.io.FileNotFoundException
-import android.provider.MediaStore
-import java.io.ByteArrayOutputStream
 
 
 class MainActivity : AppCompatActivity() {
-    private val OPEN_MEDIA_PICKER = 1  // Request code
-    private val MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 100 // Request code for read external storage
+
+    companion object {
+        private const val TAG = "MainActivity"
+        private const val OPEN_MEDIA_PICKER = 1  // Request code
+        private const val MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 100 // Request code for read external storage
+    }
+
+    private var modeSelected = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+        toolbar.setNavigationIcon(R.drawable.arrow_back)
 
         setButtonTint(fab, ContextCompat.getColorStateList(applicationContext, R.color.fabColor)!!)
-        fab.setOnClickListener { view ->
+        fab.setOnClickListener {
             if (!permissionIfNeeded()) {
-                val intent = Intent(this, Gallery::class.java)
-                // Set the title
-                intent.putExtra("title", "Select media")
-                // Mode 0 for both images and videos selection, 1 for images only and 2 for videos!
-                intent.putExtra("mode", 1)
-                intent.putExtra("maxSelection", 3) // Optional
-                intent.putExtra("tabBarHidden", true) //Optional - default value is false
-                startActivityForResult(intent, OPEN_MEDIA_PICKER)
+                openDialog()
             }
         }
     }
 
-    fun setButtonTint(button: FloatingActionButton, tint: ColorStateList) {
+    private fun openDialog() {
+        val items = arrayOf("Both", "Image", "Video")
+
+        AlertDialog.Builder(this@MainActivity)
+                .setTitle("Select media option")
+                .setSingleChoiceItems(items, modeSelected, null)
+                .setPositiveButton("Ok") { d, _ ->
+                    modeSelected = (d as AlertDialog).listView.checkedItemPosition
+                    d.dismiss()
+                    toGallery()
+                }
+                .setCancelable(false)
+                .setNegativeButton("Cancel", null)
+                .create()
+                .show()
+    }
+
+    private fun toGallery() {
+        val intent = Intent(this, Gallery::class.java)
+        // Set the title
+        intent.putExtra("title", "Select media files")
+        intent.putExtra("mode", modeSelected)
+        //intent.putExtra("maxSelection", 3) // Optional
+        intent.putExtra("tabBarHidden", false) //Optional - default value is false
+        startActivityForResult(intent, OPEN_MEDIA_PICKER)
+    }
+
+    private fun setButtonTint(button: FloatingActionButton, tint: ColorStateList) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             button.backgroundTintList = tint
         } else {
@@ -167,19 +191,26 @@ class MainActivity : AppCompatActivity() {
     private fun permissionIfNeeded(): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
+                    != PackageManager.PERMISSION_GRANTED) {
                 // Should we show an explanation?
                 if (shouldShowRequestPermissionRationale(
-                        Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                                Manifest.permission.READ_EXTERNAL_STORAGE)) {
                     // Explain to the user why we need to read the contacts
                 }
 
                 requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                    MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE)
+                        MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE)
                 return true
             }
         }
         return false
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (requestCode == MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE
+                && grantResults[0]== PackageManager.PERMISSION_GRANTED) {
+            openDialog()
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -191,14 +222,12 @@ class MainActivity : AppCompatActivity() {
                 val selectionResult = data.getStringArrayListExtra("result")
                 selectionResult.forEach {
                     try {
-                        Log.d("MyApp", "Image Path : " + it)
+                        Log.d(TAG, "Image Path : $it")
                         val uriFromPath = Uri.fromFile(File(it))
-                        Log.d("MyApp", "Image URI : " + uriFromPath)
+                        Log.d(TAG, "Image URI : $uriFromPath")
                         // Convert URI to Bitmap
                         val bm = BitmapFactory.decodeStream(
-                            contentResolver.openInputStream(uriFromPath))
-                        val uri = getImageUriFromBitmap(applicationContext, bm)
-                        Log.d("MyApp", "URI: " + uri)
+                                contentResolver.openInputStream(uriFromPath))
                         image.setImageBitmap(bm)
                     } catch (e: FileNotFoundException) {
                         e.printStackTrace()
@@ -207,15 +236,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
-    fun getImageUriFromBitmap(context: Context, bitmap: Bitmap): Uri{
-        val bytes = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
-        val path = MediaStore.Images.Media.insertImage(context.contentResolver, bitmap, "Title", null)
-        return Uri.parse(path.toString())
-    }
 }
-
 ```
 
 ## Customization
